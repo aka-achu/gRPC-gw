@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package user;
+option go_package = "proto/user";
+import "google/api/annotations.proto";
+
+// User object definition
+message User {
+  int32 id = 1;
+  string fname = 2;
+  string city = 3;
+  int64 phone = 4;
+  float height = 5;
+  bool married = 6;
+}
+
+// The request message contains id of the requested user
+message FetchUserByIDRequest {
+  string id = 1;
+}
+
+// The response message contains the details of the requested user
+message FetchUserByIDResponse {
+  User user = 1;
+}
+
+// The request message contains ids of the ruquested users
+message FetchUsersRequest {
+  repeated string id = 1;
+}
+
+// The response message contains the details of the requested users
+message FetchUsersResponse {
+  repeated User users = 1;
+}
+
+// The fetch service definition
+service Fetch {
+  // Fetch one user details, given the user id
+  rpc FetchUserByID (FetchUserByIDRequest) returns (FetchUserByIDResponse) {
+    option (google.api.http) = {
+      post: "/v1/user/fetchByID"
+      body: "*"
+    };
+  }
+  // Fetch multiple user details, give multiple user ids
+  rpc FetchUsers (FetchUsersRequest) returns (FetchUsersResponse) {
+    option (google.api.http) = {
+      post: "/v1/user/fetch"
+      body: "*"
+    };
+  }
+}
