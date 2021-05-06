@@ -16,7 +16,7 @@ message User {
 
 // The request message contains id of the requested user
 message FetchUserByIDRequest {
-  string id = 1;
+  int32 id = 1;
 }
 
 // The response message contains the details of the requested user
@@ -26,7 +26,7 @@ message FetchUserByIDResponse {
 
 // The request message contains ids of the ruquested users
 message FetchUsersRequest {
-  repeated string id = 1;
+  repeated int32 id = 1;
 }
 
 // The response message contains the details of the requested users
