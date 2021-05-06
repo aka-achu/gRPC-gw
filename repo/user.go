@@ -24,7 +24,7 @@ func (r *userRepo) FetchUserByID(
 	r.db.l.Lock()
 	defer r.db.l.Unlock()
 	if u, ok := r.db.store[id]; ok {
-		return &u, nil
+		return u, nil
 	} else {
 		return nil, errors.New("user with requested id does not exist")
 	}
@@ -43,8 +43,24 @@ func (r *userRepo) FetchUsers(
 	var users []*user.User
 	for _, id := range ids {
 		if u, ok := r.db.store[id]; ok {
-			users = append(users, &u)
+			users = append(users, u)
 		}
 	}
 	return users, nil
+}
+
+func (r *userRepo) AddUser(
+	ctx context.Context,
+	u *user.User,
+) (
+	int32,
+	error,
+) {
+	u.Id = int32(r.db.Size() + 1)
+
+	r.db.l.Lock()
+	defer r.db.l.Unlock()
+
+	r.db.store[u.Id] = u
+	return u.Id, nil
 }

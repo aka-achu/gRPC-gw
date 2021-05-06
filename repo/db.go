@@ -6,19 +6,19 @@ import (
 )
 
 type database struct {
-	store map[int32]user.User
-	// ensuring atomic access to the store, not mandatory because the app does not have write operations yet.
+	store map[int32]*user.User
+	// ensuring atomic access to the store
 	l     sync.Mutex
 }
 
 func NewDB() *database {
-	return &database{store: make(map[int32]user.User)}
+	return &database{store: make(map[int32]*user.User)}
 }
 
 func (db *database) PopulateRecords() {
 	db.l.Lock()
 	defer db.l.Unlock()
-	db.store[1] = user.User{
+	db.store[1] = &user.User{
 		Id:      1,
 		Fname:   "John",
 		City:    "New York",
@@ -26,7 +26,7 @@ func (db *database) PopulateRecords() {
 		Height:  5.8,
 		Married: true,
 	}
-	db.store[2] = user.User{
+	db.store[2] = &user.User{
 		Id:      2,
 		Fname:   "Tom",
 		City:    "Paris",
@@ -34,7 +34,7 @@ func (db *database) PopulateRecords() {
 		Height:  5.8,
 		Married: false,
 	}
-	db.store[3] = user.User{
+	db.store[3] = &user.User{
 		Id:      3,
 		Fname:   "James",
 		City:    "Moscow",
@@ -42,7 +42,7 @@ func (db *database) PopulateRecords() {
 		Height:  5.8,
 		Married: true,
 	}
-	db.store[4] = user.User{
+	db.store[4] = &user.User{
 		Id:      4,
 		Fname:   "Bob",
 		City:    "Tokyo",
@@ -50,7 +50,7 @@ func (db *database) PopulateRecords() {
 		Height:  5.8,
 		Married: false,
 	}
-	db.store[5] = user.User{
+	db.store[5] = &user.User{
 		Id:      5,
 		Fname:   "Jose",
 		City:    "Dubai",
@@ -59,4 +59,10 @@ func (db *database) PopulateRecords() {
 		Married: false,
 	}
 
+}
+
+func (db *database) Size() int {
+	db.l.Lock()
+	defer db.l.Unlock()
+	return len(db.store)
 }
