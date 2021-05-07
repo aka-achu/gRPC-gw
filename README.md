@@ -32,4 +32,4 @@ or
    curl -X POST -k http://localhost:8081/v1/user/fetch -d '{"id":[1,2]}'
   ```
  - You can also use a rpc client to use the service. You can use the proto files to create a client or any cli can be used to connect with the server
- - You can also use cli like [evans](!https://github.com/ktr0731/evans) in order to use the rpc server.
+ - You can also use cli like [evans](https://github.com/ktr0731/evans) in order to use the rpc server.
