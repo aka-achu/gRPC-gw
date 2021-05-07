@@ -2,7 +2,7 @@ package repo
 
 import (
 	"context"
-	"errors"
+	"github.com/aka-achu/gRPC-gw/model"
 	"github.com/aka-achu/gRPC-gw/proto/user"
 )
 
@@ -26,7 +26,7 @@ func (r *userRepo) FetchUserByID(
 	if u, ok := r.db.store[id]; ok {
 		return u, nil
 	} else {
-		return nil, errors.New("user with requested id does not exist")
+		return nil, model.ErrUserDoesNotExist
 	}
 }
 

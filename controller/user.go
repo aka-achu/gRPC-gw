@@ -24,6 +24,10 @@ func (c *userController) FetchUserByID(
 	error,
 ) {
 	requestID := ctx.Value("traceID").(string)
+	if req.GetId() == 0 {
+		logging.Error.Printf("TraceID-%s Invalid/Nil id of the requested user.\n", requestID)
+		return nil, model.ErrNilUserID
+	}
 	if user, err := c.repo.FetchUserByID(ctx, req.GetId()); err != nil {
 		logging.Error.Printf("TraceID-%s Failed to fetch user detail by ID. Err-%s \n", requestID, err.Error())
 		return nil, err
@@ -40,6 +44,10 @@ func (c *userController) FetchUsers(
 	error,
 ) {
 	requestID := ctx.Value("traceID").(string)
+	if len(req.GetId()) == 0 {
+		logging.Error.Printf("TraceID-%s Invalid/Nil ids of the requested user.\n", requestID)
+		return nil, model.ErrNilUserID
+	}
 	if users, err := c.repo.FetchUsers(ctx, req.GetId()); err != nil {
 		logging.Error.Printf("TraceID-%s Failed to fetch user details by IDs. Err-%s \n", requestID, err.Error())
 		return nil, err

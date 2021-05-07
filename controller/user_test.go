@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"github.com/aka-achu/gRPC-gw/model"
 	"github.com/aka-achu/gRPC-gw/proto/user"
 	"github.com/aka-achu/gRPC-gw/repo"
 	"github.com/google/uuid"
@@ -45,7 +46,17 @@ func TestFetchUserByID(t *testing.T) {
 			&user.FetchUserByIDRequest{Id: 99},
 		)
 		if err == nil {
-			t.Errorf("Expected user does not exist error but got %v", err)
+			t.Errorf("Expected %v error but got %v", model.ErrUserDoesNotExist, err)
+		}
+	})
+
+	t.Run("request with nil user id", func(t *testing.T) {
+		_, err := mockUserController.FetchUserByID(
+			context.WithValue(context.Background(), "traceID", uuid.New().String()),
+			&user.FetchUserByIDRequest{},
+		)
+		if err == nil {
+			t.Errorf("Expected %v error but got %v", model.ErrNilUserID, err)
 		}
 	})
 }
@@ -101,14 +112,12 @@ func TestFetchUsers(t *testing.T) {
 	})
 
 	t.Run("trying to fetch no user details, with empty request", func(t *testing.T) {
-		var expectedResultSet []*user.User
-		response, err := mockUserController.FetchUsers(
+		_, err := mockUserController.FetchUsers(
 			context.WithValue(context.Background(), "traceID", uuid.New().String()),
 			&user.FetchUsersRequest{Id: []int32{}},
 		)
-		assert.Nil(t, err, "Failed to fetch the users by ids")
-		if !reflect.DeepEqual(expectedResultSet, response.Users) {
-			t.Errorf("Expected %v but got %v", expectedResultSet, response.Users)
+		if err == nil {
+			t.Errorf("Expected %v error but got %v", model.ErrNilUserID, err)
 		}
 	})
 }
