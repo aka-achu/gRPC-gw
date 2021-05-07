@@ -7,15 +7,18 @@ import (
 	userpb "github.com/aka-achu/gRPC-gw/proto/user"
 )
 
+// userController implements user.FetchServer
 type userController struct {
 	userpb.UnimplementedFetchServer
 	repo model.UserRepo
 }
 
+// NewUserController will initialize an instance of userController
 func NewUserController(r model.UserRepo) *userController {
 	return &userController{repo: r}
 }
 
+// FetchUserByID is an rpc/gateway handler to fetch user detail of the requested user id
 func (c *userController) FetchUserByID(
 	ctx context.Context,
 	req *userpb.FetchUserByIDRequest,
@@ -36,6 +39,7 @@ func (c *userController) FetchUserByID(
 	}
 }
 
+// FetchUsers is an rpc/gateway handler to fetch user details of the requested user ids
 func (c *userController) FetchUsers(
 	ctx context.Context,
 	req *userpb.FetchUsersRequest,

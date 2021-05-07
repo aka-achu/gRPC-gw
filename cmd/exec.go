@@ -28,6 +28,7 @@ func Run() {
 		logging.Error.Fatalf("Failed to listen to the address %s. Err-%s \n", RPCServerAddress, err.Error())
 	}
 
+	// Create a gRPC server object with middleware
 	svr := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) {
@@ -44,18 +45,25 @@ func Run() {
 			}),
 		)),
 	)
+	// Create a new database object
 	db := repo.NewDB()
+	// Populate some sample user details
 	db.PopulateRecords()
+
+	// Attach the Fetch service to the server
 	user.RegisterFetchServer(
 		svr,
 		controller.NewUserController(repo.NewUserRepo(db)),
 	)
 
+	// Serve gRPC Server
 	logging.Info.Printf("Serving gRPC on %s", RPCServerAddress)
 	go func() {
 		logging.Error.Fatalf("Failed to start the RPC server. Err-%s \n", svr.Serve(lis).Error())
 	}()
 
+	// Create a client connection to the gRPC server
+	// The gRPC-gateway will proxy the requests to this server
 	conn, err := grpc.DialContext(
 		context.Background(),
 		RPCServerAddress,
@@ -66,6 +74,7 @@ func Run() {
 		logging.Error.Fatalf("Failed to dial up the RPC server. Err-%s \n", err.Error())
 	}
 
+	// Create a gateway mux
 	gwmux := runtime.NewServeMux()
 	err = user.RegisterFetchHandler(context.Background(), gwmux, conn)
 	if err != nil {
@@ -76,6 +85,8 @@ func Run() {
 		Addr:    GatewayAddress,
 		Handler: gwmux,
 	}
+
+	// Serve gateway
 	logging.Info.Printf("Serving gateway on %s", GatewayAddress)
 	logging.Error.Fatalf("Failed to start the gateway service. Err-%s \n", gwServer.ListenAndServe())
 }

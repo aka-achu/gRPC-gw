@@ -5,16 +5,19 @@ import (
 	"sync"
 )
 
+// database is go-routine safe map to hold the user details
 type database struct {
 	store map[int32]*user.User
 	// ensuring atomic access to the store
 	l     sync.Mutex
 }
 
+// NewDB will initialize an instance of database
 func NewDB() *database {
 	return &database{store: make(map[int32]*user.User)}
 }
 
+// PopulateRecords will store some sample user details in the database
 func (db *database) PopulateRecords() {
 	db.l.Lock()
 	defer db.l.Unlock()
@@ -61,6 +64,7 @@ func (db *database) PopulateRecords() {
 
 }
 
+// Size will return the size of the database
 func (db *database) Size() int {
 	db.l.Lock()
 	defer db.l.Unlock()
