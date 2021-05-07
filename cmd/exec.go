@@ -12,6 +12,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/reflection"
 	"net"
 	"net/http"
 )
@@ -45,6 +46,7 @@ func Run() {
 			}),
 		)),
 	)
+	reflection.Register(svr)
 	// Create a new database object
 	db := repo.NewDB()
 	// Populate some sample user details
