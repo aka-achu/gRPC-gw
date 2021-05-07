@@ -11,6 +11,7 @@ import (
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"net"
 	"net/http"
 )
@@ -30,7 +31,16 @@ func Run() {
 	svr := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) {
-				return context.WithValue(ctx, "traceID", uuid.New().String()), nil
+				traceID := uuid.New().String()
+				if meta, ok := metadata.FromIncomingContext(ctx); ok {
+					logging.Info.Printf("RequestTraceID-%s ClientIP-%v UserAgent-%v GatewayUserAgent-%v",
+						traceID,
+						meta["x-forwarded-for"],
+						meta["user-agent"],
+						meta["grpcgateway-user-agent"],
+					)
+				}
+				return context.WithValue(ctx, "traceID", traceID), nil
 			}),
 		)),
 	)
@@ -67,5 +77,5 @@ func Run() {
 		Handler: gwmux,
 	}
 	logging.Info.Printf("Serving gateway on %s", GatewayAddress)
-	logging.Error.Fatalf("Failed to start the gateway service. Err-%s \n",gwServer.ListenAndServe())
+	logging.Error.Fatalf("Failed to start the gateway service. Err-%s \n", gwServer.ListenAndServe())
 }
